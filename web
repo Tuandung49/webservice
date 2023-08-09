@@ -26,7 +26,7 @@ def system_warning():
         send_telegram_message(f"Unauthorized code detected: {input_code}")
         return jsonify(message="Warning sent")
     
-    return jsonify(message="Code is allow")
+    return jsonify(message="Code is allowed")
 
 def send_telegram_message(message):
     HTTP_API_TOKEN = '6352602833:AAF7Kn5BzszaLWrvK_2D7JIR0ghNnD_BS3occ'
