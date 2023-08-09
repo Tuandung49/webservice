@@ -1,0 +1,50 @@
+from flask import Flask, request, jsonify
+import requests
+import base64
+
+app = Flask(__name__)
+
+allowed_codes = ["code_1", "code_2", "code_3"]
+
+@app.route('/health-check', methods=['GET', 'POST'])
+def health_check():
+    return jsonify(status="OK")
+
+@app.route('/gen-code', methods=['POST'])
+def generate_code():
+    data = request.json 
+    input_text = data.get('text')
+    encoded_text = encode_function(input_text)
+    return jsonify(encoded_text=encoded_text)
+
+@app.route('/system-warning', methods=['POST'])
+def system_warning():
+    data = request.json 
+    input_code = data.get('code')
+
+    if input_code not in allowed_codes:
+        send_telegram_message(f"Unauthorized code detected: {input_code}")
+        return jsonify(message="Warning sent")
+    
+    return jsonify(message="Code is allowed")
+
+def send_telegram_message(message):
+    HTTP_API_TOKEN = '6352602833:AAF7Kn5BzszaLWrvK_2D7JIR0ghNnD_BS3occ'
+    CHAT_ID = '906317088'
+    telegram_url = f"https://api.telegram.org/bot{HTTP_API_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={message}"
+    payload = {
+        'chat_id': CHAT_ID,
+        'text': message
+    }
+    response = requests.post(telegram_url, json=payload)
+    if response.status_code == 200:
+        return True
+    return False
+
+def encode_function(text):
+    encoded_bytes = base64.b64encode(text.encode('utf-8'))
+    encoded_text = encoded_bytes.decode('utf-8')
+    return encoded_text
+
+if __name__ == '__main__':
+    app.run(debug=True)
